@@ -63,11 +63,23 @@ body {
   color: white;
 }
 
+#randomPokemon {
+  position: relative;
+}
+
 #randomBtn {
   padding: 8px;
   background-color: black;
   color: white;
-  position: relative;
-  top: 92%;
-  left: 35%;
+  position: absolute;
+  bottom:  0;
+  transform: translateY(50%);
+  right: 35%;
+  
+}
+
+#footer {
+  width: 100%;
+  border-top: solid black 1px;
+  
 }
