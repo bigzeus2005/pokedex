@@ -46,11 +46,10 @@ function displayPokemonList(pokemonList) {
 
 function displayFilteredList() {
     // update list of pokemon displayed that match user input in search box
-    console.log(searchInputEl.textContent);
+    console.log(searchInputEl.value);
     var filteredPokemonList = [];
     for (pokemon of pokemonList) {
-        // var searchTerm = searchInputEl.textContent.toLowerCase();
-        var searchTerm = "tu";
+        var searchTerm = searchInputEl.value.toLowerCase();
         if (pokemon.match(`\.?${searchTerm}`)) {
             filteredPokemonList.push(pokemon);
         }
