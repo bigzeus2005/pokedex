@@ -5,11 +5,9 @@
 }
 
 header {
-  text-align: center;
   background-color: black;
   color: white;
-  padding: 12px;
-  
+  padding: 12px;  
 }
 
 #banner {
@@ -39,14 +37,23 @@ header {
 
 #searchbar {
   width: 32vw;
-  padding: 8px;
+  padding: 16px;
   border-radius: 16px;
 }
 
 #searchBtn {
-  padding: 8px;
+  padding: 16px;
   background-color: black;
   color: white;
+  width: 33vw;  
+  margin-top: 8px;
+  border-radius: 16px;
+}
+
+#randomBtn {
+  padding: 16px;
+  background-color: black;
+  color: white; 
   width: 33vw;  
   margin-top: 8px;
   border-radius: 16px;
@@ -63,6 +70,7 @@ header {
   border-radius: 16px;
   background-color: rgb(235,28,36);
   color: white;
+  font-size: 32px;
 }
 
 #randomGif {
@@ -72,15 +80,7 @@ header {
   border-radius: 16px;
   background-color: rgb(235,28,36);
   color: white;
-}
-
-#randomBtn {
-  padding: 8px;
-  background-color: black;
-  color: white; 
-  width: 33vw;  
-  margin-top: 8px;
-  border-radius: 16px;
+  font-size: 32px;
 }
 
 #menu {
@@ -94,12 +94,20 @@ header {
 
 @media only screen and (max-width: 568px) {
   .container {
-    width: 100%;
+    width: 100%;    
+  }
+
+  #search-container {
+    height: auto;
   }
 }
 
 @media only screen and (max-width: 768px) {
   .container {
-    width: 100%;
+    width: 100%;    
+  }
+
+  #search-container {
+    height: auto;
   }
 }
