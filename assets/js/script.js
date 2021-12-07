@@ -2,6 +2,49 @@ var searchFormEl = document.getElementById("search-container");
 var searchInputEl = document.getElementById("searchbar");
 var generateRandomBtn = document.getElementById("randomBtn");
 var giphyResultsEl = document.getElementById("giphyResults");
+var pokemonResultsEl = document.getElementById("pokemonResults"); // pokemon list ∆ id
+var pokemonList = [];
+
+function generatePokemonlist() {
+    // get list of all pokemon available in api, then call function to display on page
+    var requestUrl = "https://pokeapi.co/api/v2/pokemon/?limit=900";
+    fetch(requestUrl)
+        .then(function (response) {
+            if (response.ok) {
+                response.json()
+                    .then(function (data) {
+                        for (var i = 0; i < data.results.length; i++) {
+                            var pokemon = data.results[i].name;
+                            pokemonList.push(pokemon);
+                        }
+                        displayPokemonList(pokemonList);
+                    })
+            } else {
+                console.log("Error: Pokemon not found.");
+            }
+        })
+}
+
+function displayPokemonList(pokemonList) {
+    // temp ul for testing
+    var pokeUl = document.createElement("ul");
+    pokemonResultsEl.appendChild(pokeUl);
+    pokemonResultsEl.style.overflowY = "auto";    //temp
+
+    for (pokemon in pokemonList) {
+        var pokeListEl = document.createElement("li");
+        var pokeLinkEl = document.createElement("a");
+        pokeLinkEl.textContent = pokemonList[pokemon];
+        pokeLinkEl.href = `javascript:searchFromLink(\"${pokemonList[pokemon]}\")`;
+        pokeUl.appendChild(pokeListEl);
+        pokeListEl.appendChild(pokeLinkEl);
+    }
+}
+
+function searchFromLink(keyword) {
+    searchPokemon(keyword);
+    searchGiphy(keyword);
+}
 
 function formSubmitHandler(event) {
     event.preventDefault();
@@ -14,20 +57,21 @@ function formSubmitHandler(event) {
 
 function searchPokemon(keyword) {
     // call Pokemon api
-    // test url: https://pokeapi.co/api/v2/pokemon/?limit=900
     var requestUrl = `https://pokeapi.co/api/v2/pokemon/${keyword}`;
 
     fetch(requestUrl)
-    .then(function (response) {
-        if (response.ok) {
-            response.json()
-            .then(function (data) {        
-                displayPokemonResults(data);
-            })
-        } else {
+        .then(function (response) {
+            if (response.ok) {
+                response.json()
+                    .then(function (data) {
+                        // second api call to retrieve additional pokemon info
+                        secondaryPokemonSearch(keyword);    //TODO revisit placement
+                        displayPokemonResults(data);
+                    })
+            } else {
                 alert("Error: Pokemon not found. Please try another search.");
             }
-    })
+        })
 }
 
 function secondaryPokemonSearch() {
@@ -35,19 +79,12 @@ function secondaryPokemonSearch() {
 
 }
 
-function searchGiphy(keyword) {
-    // call to Giphy search/random here
-    var apiKey = "ky6DKMmVLewPRpxK1Wb4SLGqVcFOHwUh";
-    var requestUrl = `https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&rating=pg&tag=${keyword}`;
+function generateRandomPokemon() {
+    var max = 898 // number of pokemon in api TODO remove hard-coded max
+    var randomPoke = Math.floor(Math.random() * max);
 
-    fetch(requestUrl)
-    .then(function (response) {
-        return response.json();
-    })
-    .then(function (data) {
-        searchInputEl.textContent = "";
-        displayGiphyResults(data);
-    })
+    searchPokemon(randomPoke);
+    // searchGiphy(randomPoke);
 }
 
 function displayPokemonResults(pokemon) {
@@ -68,15 +105,15 @@ function displayPokemonResults(pokemon) {
     pokeTitleEl.textContent = pokemon.name.toUpperCase();
     pokeTitleEl.style.display = "inline";
     newPokeEl.appendChild(pokeTitleEl);
-    
-    var heightWeightBaseEl = document.createElement("p"); 
+
+    var heightWeightBaseEl = document.createElement("p");
     heightWeightBaseEl.textContent = `Height: ${pokemon.height} \t Weight: ${pokemon.weight} \t Base Experience: ${pokemon.base_experience}`;
     newPokeEl.appendChild(heightWeightBaseEl);
 
     var colorShapeEl = document.createElement("p");
     colorShapeEl.textContent = `pokemon color and shape`; //from second api call   
     newPokeEl.appendChild(colorShapeEl);
-    
+
     var typesEl = document.createElement("p");
     typesEl.textContent = getTypes(pokemon.types);
     newPokeEl.appendChild(typesEl);
@@ -98,7 +135,7 @@ function getTypes(types) {
     var typeStr = ""
 
     if (types.length === 1) {
-        typeStr += "Type: " + types[0].type.name; 
+        typeStr += "Type: " + types[0].type.name;
     } else {
         typeStr = "Types: "
         for (var i = 0; i < types.length; i++) {
@@ -114,7 +151,7 @@ function getAbilities(abilities) {
     var abilityStr = ""
 
     if (abilities.length === 1) {
-        abilityStr += "Abilities: " + abilities[0].ability.name; 
+        abilityStr += "Abilities: " + abilities[0].ability.name;
     } else {
         abilityStr = "Abilities: "
         for (var i = 0; i < abilities.length; i++) {
@@ -126,30 +163,60 @@ function getAbilities(abilities) {
     return abilityStr;
 }
 
+function searchGiphy(keyword) {
+    // call to Giphy search/random here
+    var apiKey = "ky6DKMmVLewPRpxK1Wb4SLGqVcFOHwUh";
+    var requestUrl = `https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&rating=pg&tag=${keyword}`;
+
+    fetch(requestUrl)
+        .then(function (response) {
+            if (response.ok) {
+                response.json().then(function (data) {
+                    searchInputEl.textContent = "";
+                    displayGiphyResults(data);
+                })
+            }
+        })
+}
+
 function displayGiphyResults(giphy) {
+    //  clear container
+    removeAllChildNodes(giphyResultsEl);
     var gifImgEl = document.createElement("img");
-    gifImgEl.src = giphy.data.images.original.url;
-    gifImgEl.alt = `image of ${giphy.data.title}`;
+    try {
+        gifImgEl.src = giphy.data.images.original.url;
+        gifImgEl.alt = `image of ${giphy.data.title}`;
+    }
+    catch {
+        gifImgEl.src = "./assets/images/placeholder.svg";
+        gifImgEl.alt = "image not available";
+    }
+
     gifImgEl.style.maxHeight = "95%";
     gifImgEl.style.maxWidth = "95%";
     gifImgEl.style.height = "auto";
     giphyResultsEl.appendChild(gifImgEl);
 }
 
-function generateRandomPokemon() {
-    var max = 898 // number of pokemon in api TODO remove hard-coded max
-    var randomPoke = Math.floor(Math.random() * max);
+function generateRandomGif() {
+    var randomNum = Math.floor(Math.random() * pokemonList.length);
+    var keyword = pokemon[randomNum];
 
-    searchPokemon(randomPoke);
-    // searchGiphy(randomPoke);
+    // searchGiphy(keyword);
 }
 
 function removeAllChildNodes(parent) {
+    // function to clear any child nodes
     while (parent.firstChild) {
         parent.removeChild(parent.firstChild);
     }
 }
 
+
+// call function to generate Pokemon list on load;
+generatePokemonlist();
+
 // Event Handlers
 searchFormEl.addEventListener("submit", formSubmitHandler);
 generateRandomBtn.addEventListener("click", generateRandomPokemon);
+// generateRandomGifBtn.addeventListener("click", generateRandomGif);
