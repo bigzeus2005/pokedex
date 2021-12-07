@@ -1,9 +1,12 @@
 var searchFormEl = document.getElementById("search-container");
 var searchInputEl = document.getElementById("searchbar");
-var generateRandomBtn = document.getElementById("randomBtn");
+var generateRandomPokemonBtn = document.getElementById("randomBtn");
 var giphyResultsEl = document.getElementById("giphyResults");
 var pokemonResultsEl = document.getElementById("pokemonResults"); // pokemon list ∆ id
+var showEvoBtn = document.getElementById("randomEvoBtn");
+
 var pokemonList = [];
+var showEvolutions = false;
 
 function generatePokemonlist() {
     // get list of all pokemon available in api, then call function to display on page
@@ -11,14 +14,13 @@ function generatePokemonlist() {
     fetch(requestUrl)
         .then(function (response) {
             if (response.ok) {
-                response.json()
-                    .then(function (data) {
-                        for (var i = 0; i < data.results.length; i++) {
-                            var pokemon = data.results[i].name;
-                            pokemonList.push(pokemon);
-                        }
-                        displayPokemonList(pokemonList);
-                    })
+                response.json().then(function (data) {
+                    for (var i = 0; i < data.results.length; i++) {
+                        var pokemon = data.results[i].name;
+                        pokemonList.push(pokemon);
+                    }
+                    displayPokemonList(pokemonList);
+                })
             } else {
                 console.log("Error: Pokemon not found.");
             }
@@ -26,6 +28,7 @@ function generatePokemonlist() {
 }
 
 function displayPokemonList(pokemonList) {
+    removeAllChildNodes(pokemonResultsEl);
     // temp ul for testing
     var pokeUl = document.createElement("ul");
     pokemonResultsEl.appendChild(pokeUl);
@@ -39,6 +42,20 @@ function displayPokemonList(pokemonList) {
         pokeUl.appendChild(pokeListEl);
         pokeListEl.appendChild(pokeLinkEl);
     }
+}
+
+function displayFilteredList() {
+    // update list of pokemon displayed that match user input in search box
+    console.log(searchInputEl.textContent);
+    var filteredPokemonList = [];
+    for (pokemon of pokemonList) {
+        // var searchTerm = searchInputEl.textContent.toLowerCase();
+        var searchTerm = "tu";
+        if (pokemon.match(`\.?${searchTerm}`)) {
+            filteredPokemonList.push(pokemon);
+        }
+    }
+    displayPokemonList(filteredPokemonList);
 }
 
 function searchFromLink(keyword) {
@@ -62,12 +79,11 @@ function searchPokemon(keyword) {
     fetch(requestUrl)
         .then(function (response) {
             if (response.ok) {
-                response.json()
-                    .then(function (data) {
-                        // second api call to retrieve additional pokemon info
-                        secondaryPokemonSearch(keyword);    //TODO revisit placement
-                        displayPokemonResults(data);
-                    })
+                response.json().then(function (data) {
+                    // second api call to retrieve additional pokemon info
+                    secondaryPokemonSearch(keyword);    //TODO revisit placement
+                    displayPokemonResults(data);
+                })
             } else {
                 alert("Error: Pokemon not found. Please try another search.");
             }
@@ -163,6 +179,24 @@ function getAbilities(abilities) {
     return abilityStr;
 }
 
+function showHideEvo() {
+    // toggle between pokemon details and evolution info
+    if (showEvolutions) {
+        // display evo data
+
+        // hide details
+
+
+    } else {
+        // show details
+
+        // hide hide details
+
+    }
+        // change state
+        showEvolutions = !showEvolutions;
+}
+
 function searchGiphy(keyword) {
     // call to Giphy search/random here
     var apiKey = "ky6DKMmVLewPRpxK1Wb4SLGqVcFOHwUh";
@@ -188,6 +222,7 @@ function displayGiphyResults(giphy) {
         gifImgEl.alt = `image of ${giphy.data.title}`;
     }
     catch {
+        // display placeholder if image does not load
         gifImgEl.src = "./assets/images/placeholder.svg";
         gifImgEl.alt = "image not available";
     }
@@ -202,7 +237,7 @@ function generateRandomGif() {
     var randomNum = Math.floor(Math.random() * pokemonList.length);
     var keyword = pokemon[randomNum];
 
-    // searchGiphy(keyword);
+    // searchGiphy(keyword);    //TODO enable this later (disabled due to api call limit)
 }
 
 function removeAllChildNodes(parent) {
@@ -212,11 +247,13 @@ function removeAllChildNodes(parent) {
     }
 }
 
-
 // call function to generate Pokemon list on load;
 generatePokemonlist();
+generateRandomPokemon();
 
 // Event Handlers
 searchFormEl.addEventListener("submit", formSubmitHandler);
-generateRandomBtn.addEventListener("click", generateRandomPokemon);
+generateRandomPokemonBtn.addEventListener("click", generateRandomPokemon);
+showEvoBtn.addEventListener("click", showHideEvo);
 // generateRandomGifBtn.addeventListener("click", generateRandomGif);
+searchInputEl.addEventListener("keyup", displayFilteredList);
