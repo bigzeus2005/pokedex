@@ -1,13 +1,14 @@
 var searchFormEl = document.getElementById("search-container");
 var searchInputEl = document.getElementById("searchbar");
 var generateRandomBtn = document.getElementById("randomBtn");
+var giphyResultsEl = document.getElementById("giphyResults");
 
 function formSubmitHandler(event) {
     event.preventDefault();
     var searchInput = searchInputEl.value.trim();
     if (searchInput !== "") {
         searchPokemon(searchInput);
-        // searchGiphy(searchInput);
+        searchGiphy(searchInput);
     }
 }
 
@@ -20,34 +21,27 @@ function searchPokemon(keyword) {
     .then(function (response) {
         if (response.ok) {
             response.json()
-            .then(function (data) {
-                console.log(data)   //TODO - remove this later
-        
-                var pokemon = data
+            .then(function (data) {        
                 displayPokemonResults(data);
             })
         } else {
                 alert("Error: Pokemon not found. Please try another search.");
             }
-
     })
-
 }
 
 function searchGiphy(keyword) {
     // call to Giphy search/random here
-    var requestUrl = "";
     var apiKey = "ky6DKMmVLewPRpxK1Wb4SLGqVcFOHwUh";
+    var requestUrl = `https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&rating=pg&tag=${keyword}`;
 
-    // fetch(requestUrl)
-    // .then(function (response) {
-    //     return response.json();
-    // })
-    // .then(function (data) {
-    //     console.log(data)   //TODO - remove this later
-
-    //     displayGiphyResults(data);
-    // })
+    fetch(requestUrl)
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+        displayGiphyResults(data);
+    })
 }
 
 function displayPokemonResults(pokemon) {
@@ -65,21 +59,29 @@ function displayPokemonResults(pokemon) {
     newPokeEl.appendChild(pokeImgEl);
 
     var pokeTitleEl = document.createElement("h2");
-    pokeTitleEl.textContent = pokemon.name;
+    pokeTitleEl.textContent = pokemon.name.toUpperCase();
     pokeTitleEl.style.display = "inline";
     newPokeEl.appendChild(pokeTitleEl);
     
-    var heightWeightEl = document.createElement("p"); 
-    heightWeightEl.textContent = `Height: ${pokemon.height}   Weight: ${pokemon.weight}`;
-    newPokeEl.appendChild(heightWeightEl);
+    var heightWeightBaseEl = document.createElement("p"); 
+    heightWeightBaseEl.textContent = `Height: ${pokemon.height} \t Weight: ${pokemon.weight} \t Base Experience: ${pokemon.base_experience}`;
+    newPokeEl.appendChild(heightWeightBaseEl);
 
+    var colorShapeEl = document.createElement("p");
+    colorShapeEl.textContent = `pokemon color`; //from second api call   
+    newPokeEl.appendChild(colorShapeEl);
+    
     var typesEl = document.createElement("p");
     typesEl.textContent = getTypes(pokemon.types);
     newPokeEl.appendChild(typesEl);
 
-    var baseExperienceEl = document.createElement("p");
-    baseExperienceEl.textContent = pokemon.base_experience;
-    newPokeEl.appendChild(baseExperienceEl);
+    var abilitiesEl = document.createElement("p");
+    abilitiesEl.textContent = getAbilities(pokemon.abilities);
+    newPokeEl.appendChild(abilitiesEl);
+
+    var descriptionEl = document.createElement("p");
+    descriptionEl.textContent = "Description of this Pokemon goes here"; //from second api call
+    newPokeEl.appendChild(descriptionEl);
 }
 
 function setPokeImgUrl(id) {
@@ -99,13 +101,33 @@ function getTypes(types) {
         // remove trailing comma and space
         typeStr = typeStr.slice(0, -2);
     }
-
-    console.log(types.length);
     return typeStr;
 }
 
-function displayGiphyResults(giphy) {
+function getAbilities(abilities) {
+    var abilityStr = ""
 
+    if (abilities.length === 1) {
+        abilityStr += "Abilities: " + abilities[0].ability.name; 
+    } else {
+        abilityStr = "Abilities: "
+        for (var i = 0; i < abilities.length; i++) {
+            abilityStr += abilities[i].ability.name + ", ";
+        }
+        // remove trailing comma and space
+        abilityStr = abilityStr.slice(0, -2);
+    }
+    return abilityStr;
+}
+
+function displayGiphyResults(giphy) {
+    var gifImgEl = document.createElement("img");
+    gifImgEl.src = giphy.data.images.original.url;
+    gifImgEl.alt = `image of ${giphy.data.title}`;
+    gifImgEl.style.maxHeight = "100%";
+    gifImgEl.style.maxWidth = "100%";
+    gifImgEl.style.height = "auto";
+    giphyResultsEl.appendChild(gifImgEl);
 }
 
 function generateRandomPokemon() {
