@@ -30,6 +30,11 @@ function searchPokemon(keyword) {
     })
 }
 
+function secondaryPokemonSearch() {
+    // call to pokemon-species api to retrieve description, color, and shape
+
+}
+
 function searchGiphy(keyword) {
     // call to Giphy search/random here
     var apiKey = "ky6DKMmVLewPRpxK1Wb4SLGqVcFOHwUh";
@@ -40,6 +45,7 @@ function searchGiphy(keyword) {
         return response.json();
     })
     .then(function (data) {
+        searchInputEl.textContent = "";
         displayGiphyResults(data);
     })
 }
@@ -68,7 +74,7 @@ function displayPokemonResults(pokemon) {
     newPokeEl.appendChild(heightWeightBaseEl);
 
     var colorShapeEl = document.createElement("p");
-    colorShapeEl.textContent = `pokemon color`; //from second api call   
+    colorShapeEl.textContent = `pokemon color and shape`; //from second api call   
     newPokeEl.appendChild(colorShapeEl);
     
     var typesEl = document.createElement("p");
@@ -124,8 +130,8 @@ function displayGiphyResults(giphy) {
     var gifImgEl = document.createElement("img");
     gifImgEl.src = giphy.data.images.original.url;
     gifImgEl.alt = `image of ${giphy.data.title}`;
-    gifImgEl.style.maxHeight = "100%";
-    gifImgEl.style.maxWidth = "100%";
+    gifImgEl.style.maxHeight = "95%";
+    gifImgEl.style.maxWidth = "95%";
     gifImgEl.style.height = "auto";
     giphyResultsEl.appendChild(gifImgEl);
 }
