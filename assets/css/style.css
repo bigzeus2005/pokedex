@@ -13,12 +13,7 @@ header {
 }
 
 #banner {
-  width: 100%;
-  
-}
-
-body {
-  
+  width: 100%;  
 }
 
 .container {
@@ -28,6 +23,14 @@ body {
   border-radius: 16px;
   margin: 20px;
   padding: 8px;
+  overflow-y: auto;
+}
+
+.custom-restricted {
+  height: 35vh;
+  width: 40vw;
+  border: 1px solid black;
+  border-radius: 16px;
 }
 
 #search-container {
@@ -37,49 +40,66 @@ body {
 #searchbar {
   width: 32vw;
   padding: 8px;
+  border-radius: 16px;
 }
 
 #searchBtn {
   padding: 8px;
   background-color: black;
   color: white;
+  width: 33vw;  
+  margin-top: 8px;
+  border-radius: 16px;
+}
+
+.bigBtn {
+  padding-right: 12px;  
 }
 
 #randomEvoBtn {
-  height: 35vh;
-  padding: 51px;
+  width: 100%;
+  height: 35vh;  
   margin: 20px;
   border-radius: 16px;
   background-color: rgb(235,28,36);
   color: white;
 }
 
-#searchEvoBtn {
-  height: 35vh;
-  padding: 51px;
+#randomGif {
+  width: 100%;
+  height: 35vh;  
   margin: 20px;
   border-radius: 16px;
   background-color: rgb(235,28,36);
   color: white;
-}
-
-#randomPokemon {
-  position: relative;
 }
 
 #randomBtn {
   padding: 8px;
   background-color: black;
-  color: white;
-  position: absolute;
-  bottom:  0;
-  transform: translateY(50%);
-  right: 35%;
-  
+  color: white; 
+  width: 33vw;  
+  margin-top: 8px;
+  border-radius: 16px;
+}
+
+#menu {
+  border: hidden;
 }
 
 #footer {
   width: 100%;
-  border-top: solid black 1px;
-  
+  border-top: solid black 1px;  
+}
+
+@media only screen and (max-width: 568px) {
+  .container {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .container {
+    width: 100%;
+  }
 }
