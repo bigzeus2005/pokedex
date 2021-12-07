@@ -28,11 +28,10 @@ function generatePokemonlist() {
 }
 
 function displayPokemonList(pokemonList) {
-    removeAllChildNodes(pokemonResultsEl);
-    // temp ul for testing
-    var pokeUl = document.createElement("ul");
-    pokemonResultsEl.appendChild(pokeUl);
-    pokemonResultsEl.style.overflowY = "auto";    //temp
+    var pokeUl = document.querySelector(".pure-menu-list");
+    // pokemonResultsEl.style.overflowY = "auto";    //temp
+        // clear before displaying current list
+        removeAllChildNodes(pokeUl);
 
     for (pokemon in pokemonList) {
         var pokeListEl = document.createElement("li");
@@ -46,7 +45,6 @@ function displayPokemonList(pokemonList) {
 
 function displayFilteredList() {
     // update list of pokemon displayed that match user input in search box
-    console.log(searchInputEl.value);
     var filteredPokemonList = [];
     for (pokemon of pokemonList) {
         var searchTerm = searchInputEl.value.toLowerCase();
@@ -107,8 +105,7 @@ function displayPokemonResults(pokemon) {
     var newPokeEl = document.createElement("section");
     pokeContainerEl.appendChild(newPokeEl);
     // clear any existing info if exists
-    pokeContainerEl.removeChild(document.querySelector("p"));
-    // removeAllChildNodes(newPokeEl);
+    removeAllChildNodes(newPokeEl);
 
     var pokeImgEl = document.createElement("img");
     pokeImgEl.src = setPokeImgUrl(pokemon.id);
