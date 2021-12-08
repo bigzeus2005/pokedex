@@ -1,4 +1,4 @@
-# project-1
+# Pokedex
 Pokedex by Geoffrey Johnson, Can Phan, and Jesus Rosa
 
 ## Table of Contents
@@ -18,11 +18,11 @@ We made a website for searching a pokemon from the pokemon api that then finds a
 
 
 ## Link
-[Pokédex](https://bigzeus2005.github.io/project-1/)
+[Pokédex](https://bigzeus2005.github.io/pokedex/)
 
 
 ## Code
-[GitHub Code Repository](https://github.com/bigzeus2005/project-1)
+[GitHub Code Repository](https://github.com/bigzeus2005/pokedex)
 
 
 ## Contact 
