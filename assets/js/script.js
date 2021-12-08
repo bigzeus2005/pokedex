@@ -1,12 +1,21 @@
 var searchFormEl = document.getElementById("search-container");
 var searchInputEl = document.getElementById("searchbar");
 var generateRandomPokemonBtn = document.getElementById("randomBtn");
+var generateRandomGifBtn = document.getElementById("randomGif");
 var giphyResultsEl = document.getElementById("giphyResults");
-var pokemonResultsEl = document.getElementById("pokemonResults"); // pokemon list ∆ id
+var pokemonResultsEl = document.getElementById("pokemonResults");
 var showEvoBtn = document.getElementById("randomEvoBtn");
 
 var pokemonList = [];
 var showEvolutions = false;
+var currentPokemonID = 0;
+
+function init() {
+    // call functions to prepare for user interaction
+    generatePokemonlist();
+    generateRandomPokemon();
+    generateRandomGiphy();
+}
 
 function generatePokemonlist() {
     // get list of all pokemon available in api, then call function to display on page
@@ -78,8 +87,7 @@ function searchPokemon(keyword) {
             if (response.ok) {
                 response.json().then(function (data) {
                     // second api call to retrieve additional pokemon info
-                    secondaryPokemonSearch(keyword);    //TODO revisit placement
-                    displayPokemonResults(data);
+                    secondaryPokemonCall(data, keyword);
                 })
             } else {
                 alert("Error: Pokemon not found. Please try another search.");
@@ -87,25 +95,31 @@ function searchPokemon(keyword) {
         })
 }
 
-function secondaryPokemonSearch() {
+function secondaryPokemonCall(pokemon, keyword) {
     // call to pokemon-species api to retrieve description, color, and shape
-
+    var requestUrl = `https://pokeapi.co/api/v2/pokemon-species/${pokemon.id}`
+    fetch(requestUrl)
+    .then(function (response) {
+        if (response.ok) {
+            response.json().then(function (data) {
+                currentPokemonID = pokemon.id;
+                displayPokemonResults(pokemon, data);
+            })
+        } else {
+            alert("Error: Pokemon not found. Please try another search.");
+        }
+    })
 }
 
-function generateRandomPokemon() {
-    var max = 898 // number of pokemon in api TODO remove hard-coded max
-    var randomPoke = Math.floor(Math.random() * max);
-
-    searchPokemon(randomPoke);
-    // searchGiphy(randomPoke);
-}
-
-function displayPokemonResults(pokemon) {
+function displayPokemonResults(pokemon, secondaryData) {
+    // set showEvolutions to false
+    showEvolutions = false;
     var pokeContainerEl = document.getElementById("randomPokemon");
+    // clear any existing info if exists
+    removeAllChildNodes(pokeContainerEl);
     var newPokeEl = document.createElement("section");
     pokeContainerEl.appendChild(newPokeEl);
-    // clear any existing info if exists
-    removeAllChildNodes(newPokeEl);
+
 
     var pokeImgEl = document.createElement("img");
     pokeImgEl.src = setPokeImgUrl(pokemon.id);
@@ -118,25 +132,49 @@ function displayPokemonResults(pokemon) {
     pokeTitleEl.style.display = "inline";
     newPokeEl.appendChild(pokeTitleEl);
 
+    // attributes container
+    var attributesEl = document.createElement("section");
+    attributesEl.setAttribute("id", "attributes");
+    pokeContainerEl.appendChild(attributesEl);
+
     var heightWeightBaseEl = document.createElement("p");
     heightWeightBaseEl.textContent = `Height: ${pokemon.height} \t Weight: ${pokemon.weight} \t Base Experience: ${pokemon.base_experience}`;
-    newPokeEl.appendChild(heightWeightBaseEl);
+    attributesEl.appendChild(heightWeightBaseEl);
 
     var colorShapeEl = document.createElement("p");
-    colorShapeEl.textContent = `pokemon color and shape`; //from second api call   
-    newPokeEl.appendChild(colorShapeEl);
+    colorShapeEl.textContent = `Color: ${secondaryData.color.name} \t Shape: ${secondaryData.shape.name}`; //from second api call   
+    attributesEl.appendChild(colorShapeEl);
 
     var typesEl = document.createElement("p");
     typesEl.textContent = getTypes(pokemon.types);
-    newPokeEl.appendChild(typesEl);
+    attributesEl.appendChild(typesEl);
 
     var abilitiesEl = document.createElement("p");
     abilitiesEl.textContent = getAbilities(pokemon.abilities);
-    newPokeEl.appendChild(abilitiesEl);
+    attributesEl.appendChild(abilitiesEl);
 
     var descriptionEl = document.createElement("p");
-    descriptionEl.textContent = "Description of this Pokemon goes here"; //from second api call
-    newPokeEl.appendChild(descriptionEl);
+    descriptionEl.textContent = `${secondaryData.flavor_text_entries[0].flavor_text}`; //from second api call
+    attributesEl.appendChild(descriptionEl);
+
+    // configure evo fields for toggle
+    var evoContainerEl = document.createElement('section');
+    evoContainerEl.setAttribute("id", "evo-container");
+    evoContainerEl.style.display = "none";
+    pokeContainerEl.appendChild(evoContainerEl);
+
+    var generationEl = document.createElement("h4");
+    generationEl.textContent = secondaryData.generation.name.toUpperCase();
+    evoContainerEl.appendChild(generationEl);
+
+    var fromSpecies = document.createElement("p");
+    if (secondaryData.evolves_from_species !== null) {
+        var evolvesFrom = secondaryData.evolves_from_species.name.toUpperCase();
+        fromSpecies.textContent = `Evolves from ${evolvesFrom}`;
+    } else {
+        fromSpecies.textContent = "Does not evolve from another species";
+    };
+    evoContainerEl.appendChild(fromSpecies);
 }
 
 function setPokeImgUrl(id) {
@@ -176,21 +214,30 @@ function getAbilities(abilities) {
 }
 
 function showHideEvo() {
+    var evoContainerEl = document.getElementById("evo-container");
+    var attributesEl = document.getElementById("attributes");
+    showEvolutions = !showEvolutions;
+
     // toggle between pokemon details and evolution info
-    if (showEvolutions) {
+    if (showEvolutions === true) {
         // display evo data
-
+        evoContainerEl.style.display = "inline";
         // hide details
-
+        attributesEl.style.display = "none";
 
     } else {
         // show details
-
+        evoContainerEl.style.display = "none";
         // hide hide details
-
+        attributesEl.style.display = "inline";
     }
         // change state
-        showEvolutions = !showEvolutions;
+}
+
+function generateRandomPokemon() {
+    var max = 898
+    var randomPoke = Math.floor(Math.random() * max);
+    searchPokemon(randomPoke);
 }
 
 function searchGiphy(keyword) {
@@ -219,7 +266,7 @@ function displayGiphyResults(giphy) {
     }
     catch {
         // display placeholder if image does not load
-        gifImgEl.src = "./assets/images/placeholder.svg";
+        gifImgEl.src = "./assets/images/placeholder.png";
         gifImgEl.alt = "image not available";
     }
 
@@ -229,11 +276,10 @@ function displayGiphyResults(giphy) {
     giphyResultsEl.appendChild(gifImgEl);
 }
 
-function generateRandomGif() {
+function generateRandomGiphy() {
     var randomNum = Math.floor(Math.random() * pokemonList.length);
-    var keyword = pokemon[randomNum];
-
-    // searchGiphy(keyword);    //TODO enable this later (disabled due to api call limit)
+    var keyword = pokemonList[randomNum];
+    searchGiphy(keyword);
 }
 
 function removeAllChildNodes(parent) {
@@ -243,13 +289,12 @@ function removeAllChildNodes(parent) {
     }
 }
 
-// call function to generate Pokemon list on load;
-generatePokemonlist();
-generateRandomPokemon();
+// initialize on page load;
+init();
 
 // Event Handlers
 searchFormEl.addEventListener("submit", formSubmitHandler);
 generateRandomPokemonBtn.addEventListener("click", generateRandomPokemon);
 showEvoBtn.addEventListener("click", showHideEvo);
-// generateRandomGifBtn.addeventListener("click", generateRandomGif);
+generateRandomGifBtn.addEventListener("click", generateRandomGiphy);
 searchInputEl.addEventListener("keyup", displayFilteredList);
