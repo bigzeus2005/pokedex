@@ -238,6 +238,7 @@ function generateRandomPokemon() {
     var max = 898
     var randomPoke = Math.floor(Math.random() * max);
     searchPokemon(randomPoke);
+    searchGiphy(pokemonList[randomPoke]);
 }
 
 function searchGiphy(keyword) {
